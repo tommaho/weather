@@ -3,34 +3,34 @@ use std::env;
 
 fn main() {
 
-    let args: Vec<String> = env::args().collect();
-    let zip_code = parse_args(&args);
-
-    println!("Zip code is: {}", zip_code);
-
-
-    println!("Hello.");
-
     let api_key = get_api_key();
+    let zip_code = parse_args();
 
-    println!("API key is {}", api_key);
+    println!("Zip code is: {}", &zip_code);
+    println!("API key is {}", &api_key);
 
+    let (lat, lon) = get_lat_lon(&zip_code);
+
+    println!("lat lon is {} {}", lat, lon);
 
 }
 
-fn parse_args(args: &[String]) -> &str{
+fn parse_args() -> String{
 
+    let args: Vec<String> = env::args().collect();
     if args.len() >= 2 {
-        &args[1]
+        args[1].clone()
     } else {
         println!("No zip provided, defaulting to 17701.");
-        "17701"
+        "17701".to_string()
     }
 
-    // let zip_code = &args[1];
-    // zip_code
 }
 
+fn get_lat_lon(zip_code: &str) -> (f64, f64) {
+    println!("The zip we'll look for is {}", zip_code);
+    (1.0, 1.0)
+}
 
 fn get_api_key() -> String {
 
