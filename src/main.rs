@@ -1,5 +1,12 @@
 use toml::Value; //for api key
 use std::env;
+//use serde::Deserialize;
+
+// #[derive(Deserialize)] // Add this derive attribute for deserialization
+// struct WeatherData {
+//     lat: f64,
+//     lon: f64,
+// }
 
 fn main() {
 
@@ -9,11 +16,11 @@ fn main() {
     println!("Zip code is: {}", &zip_code);
     println!("API key is {}", &api_key);
 
-    let (lat, lon) = get_lat_lon(&zip_code);
+    let _ = get_lat_lon(&zip_code, &api_key);
 
-    println!("lat lon is {} {}", lat, lon);
+    //println!("lat lon is {} {}", lat, lon);
 
-    let _ = get_forecast((lat, lon));
+    //let _ = get_forecast((lat, lon));
 
 }
 
@@ -29,10 +36,18 @@ fn parse_args() -> String{
 
 }
 
-fn get_lat_lon(zip_code: &str) -> (f64, f64) {
-    println!("The zip we'll look for is {}", zip_code);
-    (1.0, 1.0)
+
+fn get_lat_lon(api_key: &str, zip_code: &str){
+
+    println!("The zip we'll look for is {} using {}", zip_code, api_key);
+
+    let _url = format!(
+        "http://api.openweathermap.org/geo/1.0/zip?zip={},US&appid={}",
+        zip_code, api_key
+    );
+
 }
+
 
 fn get_api_key() -> String {
 
@@ -46,7 +61,7 @@ fn get_api_key() -> String {
     api_key.to_string()
 }
 
-fn get_forecast(lat_lon: (f64, f64)){
-    println!("Lat Lon is {}, {}", lat_lon.0, lat_lon.1);
-    ()
-}
+// fn get_forecast(lat_lon: (f64, f64)){
+//     println!("Lat Lon is {}, {}", lat_lon.0, lat_lon.1);
+//     ()
+// }
