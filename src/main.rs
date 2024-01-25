@@ -13,6 +13,8 @@ fn main() {
 
     println!("lat lon is {} {}", lat, lon);
 
+    let _ = get_forecast((lat, lon));
+
 }
 
 fn parse_args() -> String{
@@ -21,7 +23,7 @@ fn parse_args() -> String{
     if args.len() >= 2 {
         args[1].clone()
     } else {
-        println!("No zip provided, defaulting to 17701.");
+        println!("Defaulting to zip code 17701.");
         "17701".to_string()
     }
 
@@ -42,4 +44,9 @@ fn get_api_key() -> String {
         .expect("API_KEY not found in config file");
 
     api_key.to_string()
+}
+
+fn get_forecast(lat_lon: (f64, f64)){
+    println!("Lat Lon is {}, {}", lat_lon.0, lat_lon.1);
+    ()
 }
