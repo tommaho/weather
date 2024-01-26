@@ -8,6 +8,24 @@ struct Coords {
     lon: f64,
 }
 
+#[derive(Debug, Deserialize)]
+struct WeatherData {
+    name: String,
+    main: Main,
+    weather: Vec<Weather>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Main {
+    temp: f32,
+    feels_like: f32,
+}
+
+#[derive(Debug, Deserialize)]
+struct Weather {
+    description: String,
+}
+
 fn main() {
 
     let api_key = get_api_key();
@@ -16,13 +34,27 @@ fn main() {
     println!("Zip code is: {}", &zip_code);
     println!("API key is {}", &api_key);
 
-    //let _ = get_lat_lon(&zip_code, &api_key);
-
     match fetch_coords(&api_key, &zip_code) {
-        Ok(coords) => display_coords(coords),
-        Err(error) => println!("Error fetching weather data: {}", error),
-    }
+        Ok(coords) => {
+            
+            //display_coords(&coords)//;
 
+            match fetch_weather(&api_key, &coords) {
+
+                Ok(weather_data) => {
+                    display_weather_data(weather_data);
+                },
+                Err(weather_error) => {
+                    println!("Error fetching weather data: {}", weather_error);
+                },
+            }
+
+            
+        },
+        Err(error) => println!("Error fetching weather data: {}", error),
+    };
+
+    
 }
 
 fn parse_args() -> String{
@@ -36,6 +68,7 @@ fn parse_args() -> String{
     }
 
 }
+
 
 
 fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error> {
@@ -53,6 +86,20 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error>
 
 }
 
+fn fetch_weather(api_key: &str, coords: &Coords)-> Result<WeatherData, reqwest::Error>{
+
+    println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
+
+    let url = format!(
+        "http://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&appid={}",
+        coords.lat, coords.lon, api_key
+    );
+
+    let response = reqwest::blocking::get(&url)?.json::<WeatherData>()?;
+
+    Ok(response)
+
+}
 
 fn get_api_key() -> String {
 
@@ -66,14 +113,15 @@ fn get_api_key() -> String {
     api_key.to_string()
 }
 
-
-fn display_coords(coords: Coords) {
-    println!("Lat {}:", coords.lat);
-    println!("Lon {}", coords.lon);
-}
-
-
-// fn get_forecast(lat_lon: (f64, f64)){
-//     println!("Lat Lon is {}, {}", lat_lon.0, lat_lon.1);
-//     ()
+//debug
+// fn display_coords(coords: &Coords) {
+//     println!("Lat {}:", coords.lat);
+//     println!("Lon {}", coords.lon);
 // }
+
+fn display_weather_data(weather_data: WeatherData) {
+    println!("Current weather conditions for {}:", weather_data.name);
+    println!("Temperature: {} °C", weather_data.main.temp);
+    println!("Feels like: {} °C", weather_data.main.feels_like);
+    println!("Description: {}", weather_data.weather[0].description);
+}
