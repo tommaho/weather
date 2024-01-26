@@ -9,7 +9,7 @@ struct Coords {
 }
 
 #[derive(Debug, Deserialize)]
-struct WeatherData {
+struct CurrentWeatherData {
     name: String,
     main: Main,
     weather: Vec<Weather>,
@@ -86,14 +86,14 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error>
 
 }
 
-fn fetch_weather(api_key: &str, coords: &Coords)-> Result<WeatherData, reqwest::Error>{
+fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, reqwest::Error>{
     println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
     let url = format!(
         "http://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&appid={}&units=imperial",
         coords.lat, coords.lon, api_key
     );
 
-    let response = reqwest::blocking::get(&url)?.json::<WeatherData>()?;
+    let response = reqwest::blocking::get(&url)?.json::<CurrentWeatherData>()?;
 
     Ok(response)
 
@@ -117,7 +117,7 @@ fn get_api_key() -> String {
 //     println!("Lon {}", coords.lon);
 // }
 
-fn display_current_weather_data(weather_data: WeatherData) {
+fn display_current_weather_data(weather_data: CurrentWeatherData) {
     println!("\nCurrent weather conditions for {}:", weather_data.name);
     println!("Temperature: {} °F", weather_data.main.temp);
     println!("Feels like: {} °F", weather_data.main.feels_like);
