@@ -85,7 +85,7 @@ pub struct ForecastSys {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct City {
+pub struct ForecastCity {
     pub id: u32,
     pub name: String,
     pub coord: Coord,
@@ -127,7 +127,16 @@ fn main() {
                 },
             };
 
-            println!("going to get forecast next")
+            match fetch_forecast(&api_key, &coords) {
+
+                Ok(weather_forecast) => {
+                    //println!("Need to build a forecast formatter!");
+                    display_forecast_data(weather_forecast);
+                },
+                Err(forecast_error) => {
+                    println!("Error fetching weather data: {}", forecast_error);
+                },
+            };
 
             
         },
@@ -181,6 +190,21 @@ fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, re
 
 }
 
+fn fetch_forecast(api_key: &str, coords: &Coords)-> Result<WeatherForecast, reqwest::Error>{
+    //debug
+    //println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
+    
+    let url = format!(
+        "http://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units=imperial",
+        coords.lat, coords.lon, api_key
+    );
+
+    let response: WeatherForecast = reqwest::blocking::get(&url)?.json::<WeatherForecast>()?;
+
+    Ok(response)
+
+}
+
 fn get_api_key() -> String {
 
     let config_content = std::fs::read_to_string("Config.toml")
@@ -204,4 +228,17 @@ fn display_current_weather_data(weather_data: CurrentWeatherData) {
     println!("Temperature: {} °F", weather_data.main.temp);
     println!("Feels like: {} °F", weather_data.main.feels_like);
     println!("Description: {}\n", weather_data.weather[0].description);
+}
+
+
+fn display_forecast_data(weather_forecast: WeatherForecast) {
+    // println!("\nCurrent weather conditions for {}:", weather_data.name);
+    // println!("Temperature: {} °F", weather_data.main.temp);
+    // println!("Feels like: {} °F", weather_data.main.feels_like);
+    // println!("Description: {}\n", weather_data.weather[0].description);
+    for entry in weather_forecast.list {
+        println!("{}: \t {:.2}°F\t{}"
+        , entry.dt_txt, entry.main.temp, entry.weather[0].description);
+    }
+    
 }
