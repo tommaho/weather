@@ -232,13 +232,25 @@ fn display_current_weather_data(weather_data: CurrentWeatherData) {
 
 
 fn display_forecast_data(weather_forecast: WeatherForecast) {
-    // println!("\nCurrent weather conditions for {}:", weather_data.name);
-    // println!("Temperature: {} °F", weather_data.main.temp);
-    // println!("Feels like: {} °F", weather_data.main.feels_like);
-    // println!("Description: {}\n", weather_data.weather[0].description);
+
     for entry in weather_forecast.list {
-        println!("{}: \t {:.2}°F\t{}"
-        , entry.dt_txt, entry.main.temp, entry.weather[0].description);
+
+
+        println!("{}: \t {:.2}°F {}\t{}"
+        , entry.dt_txt
+        , entry.main.temp
+        , get_weather_symbol(&entry.weather[0].main)
+        , entry.weather[0].description);
     }
     
+}
+
+fn get_weather_symbol(weather: &str) -> &'static str {
+    match weather {
+        "Clear" => "🌞",
+        "Clouds" => "🌥️",
+        "Rain" => "🌧️",
+        "Snow" => "⛄️",
+        _ => "🤷🏼‍♂️", // Default symbol for unknown weather
+    }
 }
