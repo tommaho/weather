@@ -31,8 +31,9 @@ fn main() {
     let api_key = get_api_key();
     let zip_code = parse_args();
 
-    println!("Zip code is: {}", &zip_code);
-    println!("API key is {}", &api_key);
+    //debug
+    //println!("Zip code is: {}", &zip_code);
+    //println!("API key is {}", &api_key);
 
     match fetch_coords(&api_key, &zip_code) {
         Ok(coords) => {
@@ -72,8 +73,8 @@ fn parse_args() -> String{
 
 
 fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error> {
-
-    println!("The zip we'll look for is {} using {}", zip_code, api_key);
+    //debug
+    //println!("The zip we'll look for is {} using {}", zip_code, api_key);
 
     let url = format!(
         "http://api.openweathermap.org/geo/1.0/zip?zip={},US&appid={}",
@@ -87,7 +88,9 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error>
 }
 
 fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, reqwest::Error>{
-    println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
+    //debug
+    //println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
+    
     let url = format!(
         "http://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&appid={}&units=imperial",
         coords.lat, coords.lon, api_key
