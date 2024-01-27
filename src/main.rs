@@ -25,6 +25,85 @@ struct Main {
 struct Weather {
     description: String,
 }
+//forecast
+
+#[derive(Debug, Deserialize)]
+pub struct WeatherForecast {
+    pub cod: String,
+    pub message: f64,
+    pub cnt: u32,
+    pub list: Vec<ForecastItem>,
+    pub city: ForecastCity,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ForecastItem {
+    pub dt: i64,
+    pub main: ForecastMain,
+    pub weather: Vec<ForecastWeather>,
+    pub clouds: ForecastClouds,
+    pub wind: ForecastWind,
+    pub sys: ForecastSys,
+    pub dt_txt: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ForecastMain {
+    pub temp: f64,
+    pub feels_like: f64,
+    pub temp_min: f64,
+    pub temp_max: f64,
+    pub pressure: u32,
+    pub sea_level: u32,
+    pub grnd_level: u32,
+    pub humidity: u32,
+    pub temp_kf: f64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ForecastWeather {
+    pub id: u32,
+    pub main: String,
+    pub description: String,
+    pub icon: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ForecastClouds {
+    pub all: u32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ForecastWind {
+    pub speed: f64,
+    pub deg: u32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ForecastSys {
+    pub pod: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct City {
+    pub id: u32,
+    pub name: String,
+    pub coord: Coord,
+    pub country: String,
+    pub population: u32,
+    pub timezone: i32,
+    pub sunrise: i64,
+    pub sunset: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Coord {
+    pub lat: f64,
+    pub lon: f64,
+}
+
+
+// 
 
 fn main() {
 
