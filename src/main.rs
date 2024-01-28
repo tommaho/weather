@@ -1,6 +1,7 @@
 use toml::Value; //for api key
 use std::env;
 use serde::Deserialize;
+use chrono::{NaiveDateTime, DateTime, Utc, Weekday};
 
 #[derive(Debug, Deserialize)]
 struct Coords {
@@ -233,10 +234,16 @@ fn display_current_weather_data(weather_data: CurrentWeatherData) {
 
 fn display_forecast_data(weather_forecast: WeatherForecast) {
 
+
+
     for entry in weather_forecast.list {
 
+        // let stamp = &entry.dt_txt;
+        // let dt = NaiveDateTime::parse_from_str(stamp, "%Y-%m-%d %H:%M:%S")?;
 
-        println!("{}: \t {:.2}°F {}\t{}"
+
+        println!("{} {}: \t {:.2}°F {}\t{}"
+        , "day of week"
         , entry.dt_txt
         , entry.main.temp
         , get_weather_symbol(&entry.weather[0].main)
@@ -254,3 +261,12 @@ fn get_weather_symbol(weather: &str) -> &'static str {
         _ => "🤷🏼‍♂️", // Default symbol for unknown weather
     }
 }
+
+// fn get_day_of_week(date_str: &str) -> &'static str {
+
+//     let dt = NaiveDateTime::parse_from_str(date_str, "%Y-%m-%d %H:%M:%S")?;
+//     let day_of_week = dt.weekday();
+//     // Extract the day of the week
+   
+
+// }
