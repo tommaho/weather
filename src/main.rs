@@ -1,7 +1,7 @@
 use toml::Value; //for api key
 use std::env;
 use serde::Deserialize;
-use chrono::{NaiveDateTime, NaiveDate, Datelike, DateTime, Utc, Weekday};
+use chrono::{NaiveDate, Datelike};
 
 #[derive(Debug, Deserialize)]
 struct Coords {
@@ -218,11 +218,6 @@ fn get_api_key() -> String {
     api_key.to_string()
 }
 
-//debug
-// fn display_coords(coords: &Coords) {
-//     println!("Lat {}:", coords.lat);
-//     println!("Lon {}", coords.lon);
-// }
 
 fn display_current_weather_data(weather_data: CurrentWeatherData) {
     println!("\nCurrent weather conditions for {}:\n", weather_data.name);
@@ -243,7 +238,7 @@ fn display_forecast_data(weather_forecast: WeatherForecast) {
 
     for entry in weather_forecast.list {
 
-        let (date, _) = NaiveDate::parse_and_remainder(
+        let (date, date_rem) = NaiveDate::parse_and_remainder(
             &entry.dt_txt, "%Y-%m-%d").unwrap();
     
         let dow = date.weekday();
@@ -260,9 +255,9 @@ fn display_forecast_data(weather_forecast: WeatherForecast) {
         }
         if day_counter <= 3 { //only 3 day forecast
 
-            println!("{} {}: \t {:.2}°F {}\t{}"
+            println!("{} \t{} \t {:.2}°F {}\t{}"
             , dow_str
-            , entry.dt_txt
+            , date_rem //entry.dt_txt
             , entry.main.temp
             , get_weather_symbol(&entry.weather[0].main)
             , entry.weather[0].description);
