@@ -1,7 +1,7 @@
 use toml::Value; //for api key
 use std::env;
 use serde::Deserialize;
-use chrono::{NaiveDateTime, DateTime, Utc, Weekday};
+use chrono::{NaiveDateTime, NaiveDate, Datelike, DateTime, Utc, Weekday};
 
 #[derive(Debug, Deserialize)]
 struct Coords {
@@ -225,30 +225,58 @@ fn get_api_key() -> String {
 // }
 
 fn display_current_weather_data(weather_data: CurrentWeatherData) {
-    println!("\nCurrent weather conditions for {}:", weather_data.name);
-    println!("Temperature: {} °F", weather_data.main.temp);
-    println!("Feels like: {} °F", weather_data.main.feels_like);
-    println!("Description: {}\n", weather_data.weather[0].description);
+    println!("\nCurrent weather conditions for {}:\n", weather_data.name);
+    println!("Temperature: \t{} °F", weather_data.main.temp);
+    println!("Feels like: \t{} °F", weather_data.main.feels_like);
+    println!("Description: \t{}\n", weather_data.weather[0].description);
 }
 
 
 fn display_forecast_data(weather_forecast: WeatherForecast) {
 
+    let current_time = chrono::offset::Local::now();
+    let cur_dow =  current_time.date_naive().weekday();
+    let mut day_counter = 0;
+    let mut record_counter = 0;
 
+    println!("The 3 day forecast:\n");
 
     for entry in weather_forecast.list {
 
-        // let stamp = &entry.dt_txt;
-        // let dt = NaiveDateTime::parse_from_str(stamp, "%Y-%m-%d %H:%M:%S")?;
+        let (date, _) = NaiveDate::parse_and_remainder(
+            &entry.dt_txt, "%Y-%m-%d").unwrap();
+    
+        let dow = date.weekday();
 
+        let dow_str = if dow == cur_dow {
+            "Today".to_string()
+        } else {
+            dow.to_string()
+        };
 
-        println!("{} {}: \t {:.2}°F {}\t{}"
-        , "day of week"
-        , entry.dt_txt
-        , entry.main.temp
-        , get_weather_symbol(&entry.weather[0].main)
-        , entry.weather[0].description);
+        if record_counter %8 == 0 && dow_str != "Today" {
+            println!(" ");
+            day_counter += 1;
+        }
+        if day_counter <= 3 { //only 3 day forecast
+
+            println!("{} {}: \t {:.2}°F {}\t{}"
+            , dow_str
+            , entry.dt_txt
+            , entry.main.temp
+            , get_weather_symbol(&entry.weather[0].main)
+            , entry.weather[0].description);
+
+            if dow_str != "Today" {
+                record_counter += 1;
+            }
+
+        } else {
+            break;
+        }
+
     }
+    
     
 }
 
