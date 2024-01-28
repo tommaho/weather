@@ -104,8 +104,6 @@ pub struct Coord {
 }
 
 
-// 
-
 fn main() {
 
     let api_key = get_api_key();
@@ -284,12 +282,3 @@ fn get_weather_symbol(weather: &str) -> &'static str {
         _ => "🤷🏼‍♂️", // Default symbol for unknown weather
     }
 }
-
-// fn get_day_of_week(date_str: &str) -> &'static str {
-
-//     let dt = NaiveDateTime::parse_from_str(date_str, "%Y-%m-%d %H:%M:%S")?;
-//     let day_of_week = dt.weekday();
-//     // Extract the day of the week
-   
-
-// }
