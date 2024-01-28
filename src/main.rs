@@ -1,3 +1,7 @@
+///SP24 CIT368 Assignment 1
+///Get 3 day weather forecast from an api
+
+
 use toml::Value; //for api key
 use std::env;
 use serde::Deserialize;
@@ -109,10 +113,6 @@ fn main() {
     let api_key = get_api_key();
     let zip_code = parse_args();
 
-    //debug
-    //println!("Zip code is: {}", &zip_code);
-    //println!("API key is {}", &api_key);
-
     match fetch_coords(&api_key, &zip_code) {
         Ok(coords) => {
             
@@ -145,20 +145,23 @@ fn main() {
     
 }
 
+///Get zip code from args
+///Only take 1 arg or default to 17701
+
 fn parse_args() -> String{
 
     let args: Vec<String> = env::args().collect();
-    if args.len() >= 2 {
+    if args.len() == 2 {
         args[1].clone()
     } else {
-        println!("Defaulting to zip code 17701.");
+        println!("\n**Unexpected or missing input. Defaulting to zip code 17701.**");
         "17701".to_string()
     }
 
 }
 
 
-
+///Get lat lon for a zip code, using openweathermap geocoding api
 fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error> {
     //debug
     //println!("The zip we'll look for is {} using {}", zip_code, api_key);
@@ -174,6 +177,7 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error>
 
 }
 
+//Get current weather for a lat lon, using openweathermap api
 fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, reqwest::Error>{
     //debug
     //println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
@@ -186,9 +190,9 @@ fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, re
     let response = reqwest::blocking::get(&url)?.json::<CurrentWeatherData>()?;
 
     Ok(response)
-
 }
 
+//get forecast for a lat lon, using openweathermap api
 fn fetch_forecast(api_key: &str, coords: &Coords)-> Result<WeatherForecast, reqwest::Error>{
     //debug
     //println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
@@ -201,9 +205,9 @@ fn fetch_forecast(api_key: &str, coords: &Coords)-> Result<WeatherForecast, reqw
     let response: WeatherForecast = reqwest::blocking::get(&url)?.json::<WeatherForecast>()?;
 
     Ok(response)
-
 }
 
+///Get api key from Config.toml
 fn get_api_key() -> String {
 
     let config_content = std::fs::read_to_string("Config.toml")
@@ -216,7 +220,7 @@ fn get_api_key() -> String {
     api_key.to_string()
 }
 
-
+///Display current weather conditions
 fn display_current_weather_data(weather_data: CurrentWeatherData) {
     println!("\nCurrent weather conditions for {}:\n", weather_data.name);
     println!("Temperature: \t{} °F", weather_data.main.temp);
@@ -224,7 +228,8 @@ fn display_current_weather_data(weather_data: CurrentWeatherData) {
     println!("Description: \t{}\n", weather_data.weather[0].description);
 }
 
-
+///Display 3 day forecast from openweathermap api for 5 day
+/// TODO: convert 24h times to 12h with am/pm
 fn display_forecast_data(weather_forecast: WeatherForecast) {
 
     let current_time = chrono::offset::Local::now();
@@ -270,9 +275,10 @@ fn display_forecast_data(weather_forecast: WeatherForecast) {
 
     }
     
-    
 }
 
+///These probably wont render correctly on all platforms
+///or even github code viewer for that matter
 fn get_weather_symbol(weather: &str) -> &'static str {
     match weather {
         "Clear" => "🌞",
