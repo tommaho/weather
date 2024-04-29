@@ -399,9 +399,7 @@ mod tests {
     fn test_fetch_weather() {
         let api_key = get_api_key(); // Replace with your actual API key
         let zip_code = "17701";
-    
         let coords = fetch_coords(&api_key, zip_code).expect("err");
-
         let result = fetch_forecast(&api_key, &coords);
 
         assert!(result.is_ok());
