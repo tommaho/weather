@@ -8,6 +8,9 @@ use serde_json::json;
 use chrono::{NaiveDate, Datelike};
 use jsonschema::is_valid;
 
+use std::fs::{File, OpenOptions};
+use std::io::Write;
+
 #[derive(Debug, Deserialize)]
 struct Coords {
     lat: f64,
@@ -186,7 +189,6 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, Box<dyn std::er
         "lat": 34.0901,
         "lon": -118.4065,
         "country": "US",
-        
     });
 
     let schema = json!(expected_schema);
@@ -323,4 +325,37 @@ fn get_weather_symbol(weather: &str) -> &'static str {
         "Snow" => "⛄️",
         _ => "🤷🏼‍♂️", // Default symbol for unknown weather
     }
+}
+
+
+fn log(message: &str) {
+
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("log.txt").expect("Logger error.");
+
+        let metadata = file.metadata().expect("Logger error.");
+        let file_size = metadata.len();
+    
+        // Truncate the file if it exceeds 20kb
+        const MAX_FILE_SIZE: u64 = 20 * 1024;
+        if file_size > MAX_FILE_SIZE {
+            file.set_len(0).expect("Logger error.");
+        }
+        
+    file.write_all(message.as_bytes()).expect("Logger error.");
+    file.write_all(b"\n").expect("Logger error.");
+
+    // let metadata = file.metadata()?;
+    // let file_size = metadata.len();
+
+    // // Truncate the file if it exceeds 20kb (20 * 1024 bytes)
+    // const MAX_FILE_SIZE: u64 = 20 * 1024;
+    // if file_size > MAX_FILE_SIZE {
+    //     // Truncate the file to empty
+    //     file.set_len(0)?;
+    // }
+
+    //Ok(())
 }
