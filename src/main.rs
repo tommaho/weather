@@ -1,12 +1,12 @@
 ///SP24 CIT368 Assignment 1
 ///Get 3 day weather forecast from an api
 
-
-
 use toml::Value; //for api key
 use std::env;
 use serde::Deserialize;
+use serde_json::json;
 use chrono::{NaiveDate, Datelike};
+use jsonschema::is_valid;
 
 #[derive(Debug, Deserialize)]
 struct Coords {
@@ -176,9 +176,29 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error>
         zip_code, api_key
     );
 
-    let response = reqwest::blocking::get(&url)?.json::<Coords>()?;
+    let raw_response = reqwest::blocking::get(&url)?.json()?;
 
-    Ok(response)
+    let expected_schema = json!({
+        "zip": "90210",
+        "name": "Beverly Hills",
+        "lat": 34.0901,
+        "lon": -118.4065,
+        "country": "US"
+    });
+
+    let schema = json!(expected_schema);
+    let instance = raw_response; 
+    
+    assert!(is_valid(&schema, &instance));
+
+    let coords = Coords {
+        lat: instance["lat"].as_f64().unwrap_or_default(),
+        lon: instance["lon"].as_f64().unwrap_or_default(),
+    };
+
+    //let response = reqwest::blocking::get(&url)?.json::<Coords>()?;
+
+    Ok(coords)
 
 }
 
@@ -219,7 +239,7 @@ fn get_api_key() -> String {
 
     let config: Value = toml::from_str(&config_content)
         .expect("Error parsing config.");
-    
+
     let api_key = config["weather_api_key"].as_str()
         .expect("API_KEY not found in config file");
 
