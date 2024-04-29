@@ -155,8 +155,6 @@ fn main() {
 }
 
 fn parse_args(args: Vec<String>) -> String{
-
-    //let args: Vec<String> = env::args().collect();
     
     if args.len() == 2 {
         let zip = args[1].clone();
@@ -167,17 +165,11 @@ fn parse_args(args: Vec<String>) -> String{
             return zip;
         } 
     }
-        //zip
-        // Validate zip code arg here
-
-    //} else {
-
         let message = "Missing or invalid zip, defaulted to 17701.";
         log(&message);   
 
         println!("\n** {} **", message);
         "17701".to_string()
-    //}
 
 }
 
@@ -380,4 +372,39 @@ mod tests {
         //a zip that isn't 5 numerics will default to 17701
         assert_eq!(parse_args(args), "17701".to_string());
     }
+
+    #[test]
+    fn test_fetch_coords() {
+        let api_key = get_api_key(); // Replace with your actual API key
+        let zip_code = "17701";
+
+        // fetch_coords will return lat / lon from the weather api
+        // {
+        //     "zip": "17701",
+        //     "name": "Williamsport",
+        //     "lat": 41.24,
+        //     "lon": -77.02,
+        //     "country": "US"
+        // }
+
+    
+        let result = fetch_coords(&api_key, zip_code);
+
+        match result {
+            Ok(coords) => assert_eq!(coords.lat, 41.2412),
+            Err(_) => panic!("Test failed: Invalid response or error occurred."),
+        }
+    }
+    #[test]
+    fn test_fetch_weather() {
+        let api_key = get_api_key(); // Replace with your actual API key
+        let zip_code = "17701";
+    
+        let coords = fetch_coords(&api_key, zip_code).expect("err");
+
+        let result = fetch_forecast(&api_key, &coords);
+
+        assert!(result.is_ok());
+    }
+
 }
