@@ -144,9 +144,7 @@ fn main() {
                     log(&error_message);
                     println!("{}", error_message);
                 },
-            };
-
-            
+            };      
         },
         Err(error) => println!("Error fetching weather data: {}", error),
     };
@@ -154,9 +152,6 @@ fn main() {
     log("Shutdown.");   
     
 }
-
-///Get zip code from args
-///Only take 1 arg or default to 17701
 
 fn parse_args() -> String{
 
@@ -178,11 +173,7 @@ fn parse_args() -> String{
 
 }
 
-
-///Get lat lon for a zip code, using openweathermap geocoding api
 fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, Box<dyn std::error::Error>> { //} reqwest::Error> {
-    //debug
-    //println!("The zip we'll look for is {} using {}", zip_code, api_key);
 
     let url = format!(
         "https://api.openweathermap.org/geo/1.0/zip?zip={},US&appid={}",
@@ -204,9 +195,6 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, Box<dyn std::er
     let schema = json!(expected_schema);
     let instance = raw_response; 
     
-    //TODO handle this more gracefully
-    //assert!(is_valid(&schema, &instance));
-
     if !is_valid(&schema, &instance) {
         return Err("Invalid response schema".into());
     }
@@ -220,10 +208,7 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, Box<dyn std::er
 
 }
 
-//Get current weather for a lat lon, using openweathermap api
 fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, reqwest::Error>{
-    //debug
-    //println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
     
     let url = format!(
         "https://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&appid={}&units=imperial",
@@ -240,9 +225,7 @@ fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, re
 }
 
 fn fetch_forecast(api_key: &str, coords: &Coords)-> Result<WeatherForecast, reqwest::Error>{
-    //debug
-    //println!("We'll look up {} {} using {}", coords.lat, coords.lon, api_key);
-    
+
     let url = format!(
         "https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units=imperial",
         coords.lat, coords.lon, api_key
@@ -257,7 +240,6 @@ fn fetch_forecast(api_key: &str, coords: &Coords)-> Result<WeatherForecast, reqw
     Ok(response)
 }
 
-///Get api key from Config.toml
 fn get_api_key() -> String {
 
     let config_content = std::fs::read_to_string("Config.toml")
@@ -272,7 +254,6 @@ fn get_api_key() -> String {
     api_key.to_string()
 }
 
-///Display current weather conditions
 fn display_current_weather_data(weather_data: CurrentWeatherData) {
     println!("\nCurrent weather conditions for {}:\n", weather_data.name);
     println!("Temperature: \t{} °F", weather_data.main.temp);
@@ -280,8 +261,6 @@ fn display_current_weather_data(weather_data: CurrentWeatherData) {
     println!("Description: \t{}\n", weather_data.weather[0].description);
 }
 
-///Display 3 day forecast from openweathermap api for 5 day
-/// TODO: convert 24h times to 12h with am/pm
 fn display_forecast_data(weather_forecast: WeatherForecast) {
 
     let current_time = chrono::offset::Local::now();
@@ -329,8 +308,6 @@ fn display_forecast_data(weather_forecast: WeatherForecast) {
     
 }
 
-///These probably wont render correctly on all platforms
-///or even github code viewer for that matter
 fn get_weather_symbol(weather: &str) -> &'static str {
     match weather {
         "Clear" => "🌞",
@@ -357,7 +334,6 @@ fn log(message: &str) {
         let metadata = file.metadata().expect("Logger error.");
         let file_size = metadata.len();
     
-        // Truncate the file if it exceeds 20kb
         const MAX_FILE_SIZE: u64 = 20 * 1024;
         if file_size > MAX_FILE_SIZE {
             file.set_len(0).expect("Logger error.");
