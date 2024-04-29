@@ -5,10 +5,10 @@ use toml::Value; //for api key
 use std::env;
 use serde::Deserialize;
 use serde_json::json;
-use chrono::{NaiveDate, Datelike};
+use chrono::{NaiveDate, Datelike, Local, DateTime};
 use jsonschema::is_valid;
 
-use std::fs::{File, OpenOptions};
+use std::fs::OpenOptions;
 use std::io::Write;
 
 #[derive(Debug, Deserialize)]
@@ -114,6 +114,8 @@ pub struct Coord {
 
 fn main() {
 
+    log("Startup.");
+
     let api_key = get_api_key();
     let zip_code = parse_args();
 
@@ -126,18 +128,21 @@ fn main() {
                     display_current_weather_data(weather_data);
                 },
                 Err(weather_error) => {
-                    println!("Error fetching weather data: {}", weather_error);
+                    let error_message = format!("Error fetching weather data: {}", weather_error);
+                    log(&error_message);
+                    println!("{}", error_message);
                 },
             };
 
             match fetch_forecast(&api_key, &coords) {
 
                 Ok(weather_forecast) => {
-                    //println!("Need to build a forecast formatter!");
                     display_forecast_data(weather_forecast);
                 },
                 Err(forecast_error) => {
-                    println!("Error fetching weather data: {}", forecast_error);
+                    let error_message = format!("Error fetching forecast data: {}", forecast_error);
+                    log(&error_message);
+                    println!("{}", error_message);
                 },
             };
 
@@ -146,6 +151,7 @@ fn main() {
         Err(error) => println!("Error fetching weather data: {}", error),
     };
 
+    log("Shutdown.");   
     
 }
 
@@ -162,7 +168,11 @@ fn parse_args() -> String{
         // Validate zip code arg here
 
     } else {
-        println!("\n**Unexpected or missing input. Defaulting to zip code 17701.**");
+
+        let message = "Missing or invalid zip, defaulted to 17701.";
+        log(&message);   
+
+        println!("\n**{}**", message);
         "17701".to_string()
     }
 
@@ -221,7 +231,9 @@ fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, re
     );
 
     let response = reqwest::blocking::get(&url)?.json::<CurrentWeatherData>()?;
-
+    
+    log("Current weather data retrieved.");  
+    
     //schema validation here
 
     Ok(response)
@@ -237,6 +249,8 @@ fn fetch_forecast(api_key: &str, coords: &Coords)-> Result<WeatherForecast, reqw
     );
 
     let response: WeatherForecast = reqwest::blocking::get(&url)?.json::<WeatherForecast>()?;
+
+    log("Forecast data retrieved.");  
 
     //schema validation here
 
@@ -330,6 +344,11 @@ fn get_weather_symbol(weather: &str) -> &'static str {
 
 fn log(message: &str) {
 
+    let current_time: DateTime<Local> = Local::now();
+    let formatted_time = current_time.format("%Y-%m-%d %H:%M:%S").to_string();
+    let log_message = format!("{}: {}\n", formatted_time, message);
+
+
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
@@ -342,20 +361,12 @@ fn log(message: &str) {
         const MAX_FILE_SIZE: u64 = 20 * 1024;
         if file_size > MAX_FILE_SIZE {
             file.set_len(0).expect("Logger error.");
+            log("Log truncated.");
         }
         
-    file.write_all(message.as_bytes()).expect("Logger error.");
-    file.write_all(b"\n").expect("Logger error.");
+    file.write_all(log_message.as_bytes()).expect("Logger error.");
+    
+    //Might not do this automatically on all platforms?
+    //file.write_all(b"\n").expect("Logger error.");
 
-    // let metadata = file.metadata()?;
-    // let file_size = metadata.len();
-
-    // // Truncate the file if it exceeds 20kb (20 * 1024 bytes)
-    // const MAX_FILE_SIZE: u64 = 20 * 1024;
-    // if file_size > MAX_FILE_SIZE {
-    //     // Truncate the file to empty
-    //     file.set_len(0)?;
-    // }
-
-    //Ok(())
 }
