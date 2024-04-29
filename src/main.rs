@@ -167,7 +167,7 @@ fn parse_args() -> String{
 
 
 ///Get lat lon for a zip code, using openweathermap geocoding api
-fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error> {
+fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, Box<dyn std::error::Error>> { //} reqwest::Error> {
     //debug
     //println!("The zip we'll look for is {} using {}", zip_code, api_key);
 
@@ -178,25 +178,31 @@ fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, reqwest::Error>
 
     let raw_response = reqwest::blocking::get(&url)?.json()?;
 
+
+    //TODO move this into a config file
     let expected_schema = json!({
         "zip": "90210",
         "name": "Beverly Hills",
         "lat": 34.0901,
         "lon": -118.4065,
-        "country": "US"
+        "country": "US",
+        
     });
 
     let schema = json!(expected_schema);
     let instance = raw_response; 
     
-    assert!(is_valid(&schema, &instance));
+    //TODO handle this more gracefully
+    //assert!(is_valid(&schema, &instance));
+
+    if !is_valid(&schema, &instance) {
+        return Err("Invalid response schema".into());
+    }
 
     let coords = Coords {
         lat: instance["lat"].as_f64().unwrap_or_default(),
         lon: instance["lon"].as_f64().unwrap_or_default(),
     };
-
-    //let response = reqwest::blocking::get(&url)?.json::<Coords>()?;
 
     Ok(coords)
 
@@ -214,6 +220,8 @@ fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, re
 
     let response = reqwest::blocking::get(&url)?.json::<CurrentWeatherData>()?;
 
+    //schema validation here
+
     Ok(response)
 }
 
@@ -227,6 +235,8 @@ fn fetch_forecast(api_key: &str, coords: &Coords)-> Result<WeatherForecast, reqw
     );
 
     let response: WeatherForecast = reqwest::blocking::get(&url)?.json::<WeatherForecast>()?;
+
+    //schema validation here
 
     Ok(response)
 }
