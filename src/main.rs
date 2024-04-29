@@ -10,6 +10,7 @@ use jsonschema::is_valid;
 
 use std::fs::OpenOptions;
 use std::io::Write;
+use regex::Regex;
 
 #[derive(Debug, Deserialize)]
 struct Coords {
@@ -160,17 +161,23 @@ fn parse_args(args: Vec<String>) -> String{
     if args.len() == 2 {
         let zip = args[1].clone();
 
-        zip
+        let re = Regex::new(r"^\d{5}$").unwrap();
+
+        if re.is_match(&zip) {
+            return zip;
+        } 
+    }
+        //zip
         // Validate zip code arg here
 
-    } else {
+    //} else {
 
-        let message = "Missing zip, defaulted to 17701.";
+        let message = "Missing or invalid zip, defaulted to 17701.";
         log(&message);   
 
-        println!("\n**{}**", message);
+        println!("\n** {} **", message);
         "17701".to_string()
-    }
+    //}
 
 }
 
@@ -357,13 +364,20 @@ mod tests {
 
     #[test]
     fn test_valid_zip() {
-        let args = vec!["program_name".to_string(), "12345".to_string()];
+        let args = vec!["placeholder".to_string(), "12345".to_string()];
         assert_eq!(parse_args(args), "12345".to_string());
     }
 
     #[test]
     fn test_missing_zip() {
-        let args = vec!["program_name".to_string()];
+        let args = vec!["placeholder".to_string()];
+        assert_eq!(parse_args(args), "17701".to_string());
+    }
+
+    #[test]
+    fn test_invalid_zip() {
+        let args = vec!["placeholder".to_string(), "1".to_string()];
+        //a zip that isn't 5 numerics will default to 17701
         assert_eq!(parse_args(args), "17701".to_string());
     }
 }
