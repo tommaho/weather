@@ -1,5 +1,6 @@
-///SP24 CIT368 Assignment 1
-///Get 3 day weather forecast from an api
+/// SP24 CIT368 Secure Software & Testing
+/// Add security features discussed in class
+/// Get 3 day weather forecast from an api
 
 use toml::Value; //for api key
 use std::env;
@@ -375,7 +376,7 @@ mod tests {
 
     #[test]
     fn test_fetch_coords() {
-        let api_key = get_api_key(); // Replace with your actual API key
+        let api_key = get_api_key(); 
         let zip_code = "17701";
 
         // fetch_coords will return lat / lon from the weather api
@@ -397,7 +398,7 @@ mod tests {
     }
     #[test]
     fn test_fetch_weather() {
-        let api_key = get_api_key(); // Replace with your actual API key
+        let api_key = get_api_key(); 
         let zip_code = "17701";
         let coords = fetch_coords(&api_key, zip_code).expect("err");
         let result = fetch_forecast(&api_key, &coords);
