@@ -117,7 +117,7 @@ fn main() {
     log("Startup.");
 
     let api_key = get_api_key();
-    let zip_code = parse_args();
+    let zip_code = parse_args(env::args().collect());
 
     match fetch_coords(&api_key, &zip_code) {
         Ok(coords) => {
@@ -153,9 +153,10 @@ fn main() {
     
 }
 
-fn parse_args() -> String{
+fn parse_args(args: Vec<String>) -> String{
 
-    let args: Vec<String> = env::args().collect();
+    //let args: Vec<String> = env::args().collect();
+    
     if args.len() == 2 {
         let zip = args[1].clone();
 
@@ -164,7 +165,7 @@ fn parse_args() -> String{
 
     } else {
 
-        let message = "Missing or invalid zip, defaulted to 17701.";
+        let message = "Missing zip, defaulted to 17701.";
         log(&message);   
 
         println!("\n**{}**", message);
@@ -172,6 +173,8 @@ fn parse_args() -> String{
     }
 
 }
+
+
 
 fn fetch_coords(api_key: &str, zip_code: &str) -> Result<Coords, Box<dyn std::error::Error>> { //} reqwest::Error> {
 
@@ -219,7 +222,7 @@ fn fetch_weather(api_key: &str, coords: &Coords)-> Result<CurrentWeatherData, re
     
     log("Current weather data retrieved.");  
     
-    //schema validation here
+    //schema validation here - need schema template
 
     Ok(response)
 }
@@ -235,7 +238,7 @@ fn fetch_forecast(api_key: &str, coords: &Coords)-> Result<WeatherForecast, reqw
 
     log("Forecast data retrieved.");  
 
-    //schema validation here
+    //schema validation here - need schema template
 
     Ok(response)
 }
@@ -345,4 +348,22 @@ fn log(message: &str) {
     //Might not do this automatically on all platforms?
     //file.write_all(b"\n").expect("Logger error.");
 
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_zip() {
+        let args = vec!["program_name".to_string(), "12345".to_string()];
+        assert_eq!(parse_args(args), "12345".to_string());
+    }
+
+    #[test]
+    fn test_missing_zip() {
+        let args = vec!["program_name".to_string()];
+        assert_eq!(parse_args(args), "17701".to_string());
+    }
 }
