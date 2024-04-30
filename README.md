@@ -5,7 +5,19 @@ This expects a Config.toml file in the project root containing the line:
 
 ```weather_api_key = "your api key"```
 
-This will also create an activity log `log.txt` in the project root that resets at 20kb. 
+This will also create an activity log `log.txt` in the project root that resets at 20kb. An example follows:
+
+```bash
+2024-04-29 11:28:11: Startup.
+2024-04-29 11:28:11: Missing or invalid zip, defaulted to 17701.
+2024-04-29 11:28:12: Current weather data retrieved.
+2024-04-29 11:28:12: Forecast data retrieved.
+2024-04-29 11:28:12: Shutdown.
+2024-04-29 11:28:23: Startup.
+2024-04-29 11:28:23: Current weather data retrieved.
+2024-04-29 11:28:23: Error fetching forecast data: error decoding response body: missing field `lat` at line 1 column 16190
+2024-04-29 11:28:23: Shutdown.
+```
 
 
 Expects a 5 digit leading-zero zip code. Usage: 
